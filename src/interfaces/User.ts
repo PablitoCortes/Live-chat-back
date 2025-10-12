@@ -6,6 +6,7 @@ export interface User {
   _id?: mongoose.Types.ObjectId;
   email: string;
   password: string;
+  avatarUrl?:string;
   name: string;
   username?: string;
   creationDate?: Date;

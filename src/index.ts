@@ -5,6 +5,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import router from "./routes/index";
 import { connectDB } from "./config/dbConnection";
+import fileUpload from "express-fileupload";
 
 export const app = express();
 
@@ -25,6 +26,14 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "./uploads",
+    createParentPath: true,
+  })
+);
 
 app.use("/api", router);
 

@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   email: String,
   password: String,
+  avatarUrl: {type:String, default: ""},
   creationDate: { type: Date, default: Date.now },
   isDeleted: { type: Boolean, default: false },
   deletedAt: { type: Date, default: null },
