@@ -75,7 +75,7 @@ export const googleLoginService = async (code: string) => {
     user = new UserModel({
       name: googleUser.name,
       email: googleUser.email,
-      picture: googleUser.picture,
+      avatarUrl: googleUser.picture,
       provider: "google",
       password: null,
       isDeleted: false,
