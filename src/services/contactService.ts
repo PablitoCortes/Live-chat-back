@@ -14,9 +14,18 @@ export const getContactsService = async (userId: string) => {
       }
       return user?.contacts;
     } catch (error) {
-      throw new Error("Error geting contacts ");
+      throw new Error("Error getting contacts ");
     }
   };
+
+  export const getAllContactsService= async()=>{
+    try{
+      return await UserModel.find()
+    }
+    catch(error){
+      throw new Error("Error getting user List")
+    }
+  }
   
   export const addContactService = async (
     userId: string,

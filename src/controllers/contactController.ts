@@ -1,6 +1,6 @@
 import { AuthRequest } from "../middlewares/authUser";
 import { Response } from "express";
-import { addContactService, deleteContactService, getContactsService } from "../services/contactService";
+import { addContactService, deleteContactService, getAllContactsService, getContactsService } from "../services/contactService";
 import { sendResponse, sendError } from "../utils/apiResponse";
 
 export const getContacts = async (
@@ -29,6 +29,19 @@ export const getContacts = async (
       }
     }
   };
+
+  export const getAllContacts= async(
+    req: AuthRequest,
+    res: Response
+  ): Promise<void>=>{
+    try{
+      const allContacts = await getAllContactsService()
+      sendResponse(res,200,"User list fetch succesfully", allContacts)
+    }catch(error){
+      if(error instanceof Error){
+        sendError(res, 500, error.message);    }
+      }
+  }
   
   export const addContact = async (
     req: AuthRequest,

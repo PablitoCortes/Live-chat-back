@@ -138,6 +138,7 @@ io.on("connection", async (socket: CustomSocket) => {
         });
       
     });
+    
     socket.on("new message", async (message) => {
       try {
         const sender = socket.user?.userId;
