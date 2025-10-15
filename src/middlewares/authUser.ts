@@ -10,7 +10,7 @@ export interface AuthRequest extends Request {
     email: string;
   };
   files?:
-    fileUpload.FileArray;
+    fileUpload.FileArray |null ;
 }
 
 export const verifyToken = async (token: string) => {
