@@ -51,13 +51,16 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     const { user, token } = await loginUserService(email, password);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: process.env.NODE_ENV === "production" || true,
-      maxAge: 24 * 60 * 60 * 1000,
-      path: "/"
-    });
+    const isProduction = process.env.NODE_ENV === "production";
+
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: isProduction, // solo HTTPS en Render
+  sameSite: isProduction ? "none" : "lax", // none para dominios cruzados
+  maxAge: 24 * 60 * 60 * 1000, // 1 día
+  path: "/",
+});
+
 
     sendResponse(res, 200, "Login successful", {
       user: {
@@ -89,13 +92,17 @@ export const googleAuthCallback = async (req: Request, res: Response)=>{
   try{
     const {token} = await googleLoginService(code as string);
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      sameSite: "none",
-      secure: process.env.NODE_ENV === "production" || true,
-      maxAge: 24 * 60 * 60 * 1000,
-      path: "/"
+      secure: isProduction, // solo HTTPS en Render
+      sameSite: isProduction ? "none" : "lax", // none para dominios cruzados
+      maxAge: 24 * 60 * 60 * 1000, // 1 día
+      path: "/",
     });
+    
+    
     res.redirect(`${process.env.FRONTEND_URL}/auth/google/success`)
   }catch(error){
     if (error instanceof Error) {
@@ -111,10 +118,15 @@ export const LogoutUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    res.clearCookie("token", {
-      sameSite: "strict",
-      expires: new Date(0),
-    });
+    const isProduction = process.env.NODE_ENV === "production";
+
+res.clearCookie("token", {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  path: "/",
+});
+
     sendResponse(res, 200, "Logout completed successfully");
   } catch (error) {
     if (error instanceof Error) {

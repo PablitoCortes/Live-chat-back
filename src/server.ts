@@ -18,17 +18,18 @@ const PORT: number = parseInt(process.env.PORT || "3000");
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: [
+      process.env.FRONTEND_URL || "http://localhost:3000",
+      "https://live-chat-front-xutz.onrender.com"
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
   },
   pingTimeout: 60000,
   pingInterval: 25000,
-  connectTimeout: 10000
+  connectTimeout: 10000,
 });
+
 
 io.engine.on("connection_error", (err) => {
   console.error("Error de conexión:", err);
