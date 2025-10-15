@@ -2,12 +2,15 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { getUserProfileService } from "../services/userService";
 import { sendError } from "../utils/apiResponse";
+import fileUpload from "express-fileupload";
 
 export interface AuthRequest extends Request {
   user?: {
     userId: string;
     email: string;
   };
+  files?:
+    fileUpload.FileArray;
 }
 
 export const verifyToken = async (token: string) => {
