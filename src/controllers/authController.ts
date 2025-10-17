@@ -37,6 +37,7 @@ export const registerUser = async (
         sameSite: isProduction ? "none" : "lax", 
         maxAge: 24 * 60 * 60 * 1000, 
         path: "/",
+        domain: isProduction ? ".onrender.com" : undefined,
       });
 
       sendResponse(res, 201, "User registered successfully", newUser);
@@ -67,6 +68,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       sameSite: isProduction ? "none" : "lax", 
       maxAge: 24 * 60 * 60 * 1000,
       path: "/",
+      domain: isProduction ? ".onrender.com" : undefined,
     });
 
 
@@ -108,6 +110,7 @@ export const googleAuthCallback = async (req: Request, res: Response)=>{
       sameSite: isProduction ? "none" : "lax", 
       maxAge: 24 * 60 * 60 * 1000, 
       path: "/",
+      domain: isProduction ? ".onrender.com" : undefined,
     });
     
     
