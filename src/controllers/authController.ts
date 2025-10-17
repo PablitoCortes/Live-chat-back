@@ -111,7 +111,11 @@ export const googleAuthCallback = async (req: Request, res: Response)=>{
     });
     
     console.log("✅ Cookie set, redirecting to:", `${process.env.FRONTEND_URL}/auth/google/success`);
-    res.redirect(`${process.env.FRONTEND_URL}/auth/google/success`)
+    
+    // Pequeño delay para asegurar que la cookie se establezca
+    setTimeout(() => {
+      res.redirect(`${process.env.FRONTEND_URL}/auth/google/success`);
+    }, 100);
   }catch(error){
     if (error instanceof Error) {
       sendError(res, 401, "Invalid credentials", error.message);
