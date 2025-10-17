@@ -31,6 +31,15 @@ export const registerUser = async (
 
       const {newUser,token} = await registerUserService(userData);
 
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none", 
+        maxAge: 24 * 60 * 60 * 1000, 
+        path: "/",
+      });
+
+
       sendResponse(res, 201, "User registered successfully", { user: newUser, token });
     } catch (error) {
       if (error instanceof Error) {
@@ -94,14 +103,6 @@ export const googleAuthCallback = async (req: Request, res: Response)=>{
 
     const isProduction = process.env.NODE_ENV === "production";
     
-    console.log("🍪 Setting cookie with config:", {
-      httpOnly: true,
-      secure: isProduction, 
-      sameSite: isProduction ? "none" : "lax", 
-      maxAge: 24 * 60 * 60 * 1000, 
-      path: "/",
-    });
-
     res.cookie("token", token, {
       httpOnly: true,
       secure: true, 
@@ -112,7 +113,6 @@ export const googleAuthCallback = async (req: Request, res: Response)=>{
     
     console.log("✅ Cookie set, redirecting to:", `${process.env.FRONTEND_URL}/auth/google/success`);
     
-    // Pequeño delay para asegurar que la cookie se establezca
     setTimeout(() => {
       res.redirect(`${process.env.FRONTEND_URL}/auth/google/success`);
     }, 100);
