@@ -10,6 +10,7 @@ import fileUpload from "express-fileupload";
 export const app = express();
 
 dotevents.config();
+app.set("trust proxy", 1);
 
 app.use(morgan("dev"));
 
@@ -25,7 +26,6 @@ app.use(
     exposedHeaders: ["Set-Cookie"],
   })
 );
-app.set("trust proxy", 1);
 app.use(express.json());
 app.use(cookieParser());
 
