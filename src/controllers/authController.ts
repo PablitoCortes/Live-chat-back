@@ -27,11 +27,19 @@ export const registerUser = async (
         name,
         creationDate: new Date(),
       };
-  
-      const user = await registerUserService(userData);
-      const { password: _, ...userWithoutPassword } = user.toObject();
-  
-      sendResponse(res, 201, "User registered successfully", userWithoutPassword);
+      const isProduction = process.env.NODE_ENV === "production";
+
+      const {newUser,token} = await registerUserService(userData);
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax", 
+        maxAge: 24 * 60 * 60 * 1000, 
+        path: "/",
+      });
+
+      sendResponse(res, 201, "User registered successfully", newUser);
     } catch (error) {
       if (error instanceof Error) {
         sendError(res, 500, "Error registering user", error.message);
@@ -53,13 +61,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     const isProduction = process.env.NODE_ENV === "production";
 
-res.cookie("token", token, {
-  httpOnly: true,
-  secure: isProduction, // solo HTTPS en Render
-  sameSite: isProduction ? "none" : "lax", // none para dominios cruzados
-  maxAge: 24 * 60 * 60 * 1000, // 1 día
-  path: "/",
-});
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction, 
+      sameSite: isProduction ? "none" : "lax", 
+      maxAge: 24 * 60 * 60 * 1000,
+      path: "/",
+    });
 
 
     sendResponse(res, 200, "Login successful", {
@@ -96,9 +104,9 @@ export const googleAuthCallback = async (req: Request, res: Response)=>{
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProduction, // solo HTTPS en Render
-      sameSite: isProduction ? "none" : "lax", // none para dominios cruzados
-      maxAge: 24 * 60 * 60 * 1000, // 1 día
+      secure: isProduction, 
+      sameSite: isProduction ? "none" : "lax", 
+      maxAge: 24 * 60 * 60 * 1000, 
       path: "/",
     });
     

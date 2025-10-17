@@ -28,7 +28,17 @@ export const loginUserService = async (email: string, password: string) => {
 
 export const registerUserService = async (userData: User) => {
     const newUser = new UserModel(userData);
-    return await newUser.save();
+
+    const token = jwt.sign(
+      {
+        userId: newUser._id,
+        email: newUser.email,
+      },
+      process.env.JWT_SECRET || "tu-secreto-seguro",
+      { expiresIn: "24h" })
+    await newUser.save();
+
+    return {newUser,token}
   };
 
 export const getGoogleAuthURL = (): string => {
