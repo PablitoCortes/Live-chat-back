@@ -31,16 +31,7 @@ export const registerUser = async (
 
       const {newUser,token} = await registerUserService(userData);
 
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax", 
-        maxAge: 24 * 60 * 60 * 1000, 
-        path: "/",
-        domain: isProduction ? ".onrender.com" : undefined,
-      });
-
-      sendResponse(res, 201, "User registered successfully", newUser);
+      sendResponse(res, 201, "User registered successfully", { user: newUser, token });
     } catch (error) {
       if (error instanceof Error) {
         sendError(res, 500, "Error registering user", error.message);
@@ -62,14 +53,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     const isProduction = process.env.NODE_ENV === "production";
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: isProduction, 
-      sameSite: isProduction ? "none" : "lax", 
-      maxAge: 24 * 60 * 60 * 1000,
-      path: "/",
-      domain: isProduction ? ".onrender.com" : undefined,
-    });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none", 
+        maxAge: 24 * 60 * 60 * 1000, 
+        path: "/",
+      });
 
 
     sendResponse(res, 200, "Login successful", {
@@ -103,17 +93,24 @@ export const googleAuthCallback = async (req: Request, res: Response)=>{
     const {token} = await googleLoginService(code as string);
 
     const isProduction = process.env.NODE_ENV === "production";
-
-    res.cookie("token", token, {
+    
+    console.log("🍪 Setting cookie with config:", {
       httpOnly: true,
       secure: isProduction, 
       sameSite: isProduction ? "none" : "lax", 
       maxAge: 24 * 60 * 60 * 1000, 
       path: "/",
-      domain: isProduction ? ".onrender.com" : undefined,
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true, 
+      sameSite: "none", 
+      maxAge: 24 * 60 * 60 * 1000, 
+      path: "/",
     });
     
-    
+    console.log("✅ Cookie set, redirecting to:", `${process.env.FRONTEND_URL}/auth/google/success`);
     res.redirect(`${process.env.FRONTEND_URL}/auth/google/success`)
   }catch(error){
     if (error instanceof Error) {

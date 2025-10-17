@@ -31,9 +31,13 @@ export const authUser = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    console.log("🔍 Auth middleware - Cookies:", req.cookies);
+    console.log("🔍 Auth middleware - Headers:", req.headers.cookie);
+    
     let token = req.cookies.token;
 
     if (!token) {
+      console.log("❌ No token found in cookies");
       sendError(res, 401, "No token provided");
       return;
     }
