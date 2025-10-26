@@ -24,7 +24,7 @@ export const authSocket = (
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "tu-secreto-seguro"
+      process.env.JWT_SECRET_KEY || "tu-secreto-seguro"
     ) as UserPayload;
 
     socket.user = decoded;

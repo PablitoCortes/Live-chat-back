@@ -1,7 +1,7 @@
 import {Request, Response} from "express"
 import {User} from "../interfaces/User"
 import { sendResponse, sendError } from "../utils/apiResponse";
-import { getGoogleAuthURL, googleLoginService, loginUserService, registerUserService } from "../services/authService";
+import { googleLoginService, loginUserService, registerUserService } from "../services/authService";
 
 export const registerUser = async (
     req: Request,
@@ -36,7 +36,7 @@ export const registerUser = async (
         secure: true,
         sameSite: "none", 
         maxAge: 24 * 60 * 60 * 1000, 
-        path: "/",
+        domain: ".render.com",
       });
 
 
@@ -67,7 +67,7 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         secure: true,
         sameSite: "none", 
         maxAge: 24 * 60 * 60 * 1000, 
-        path: "/",
+        domain: ".render.com",
       });
 
 
@@ -88,65 +88,54 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const googleAuthRedirect = async(req: Request, res: Response)=>{
-  const url = getGoogleAuthURL();
-  return res.redirect(url)
-}
-
-export const googleAuthCallback = async (req: Request, res: Response)=>{
-  const {code} = req.query;
-
-  if(!code) sendError(res, 400, "Missing authorization code")
-
-  try{
-    const {token} = await googleLoginService(code as string);
-
-    const isProduction = process.env.NODE_ENV === "production";
-    
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, 
-      sameSite: "none", 
-      maxAge: 24 * 60 * 60 * 1000, 
-      path: "/",
-    });
-    
-    console.log("✅ Cookie set, redirecting to:", `${process.env.FRONTEND_URL}/auth/google/success`);
-    
-    setTimeout(() => {
-      res.redirect(`${process.env.FRONTEND_URL}/auth/google/success`);
-    }, 100);
-  }catch(error){
-    if (error instanceof Error) {
-      sendError(res, 401, "Invalid credentials", error.message);
-    } else {
-      sendError(res, 401, "Invalid credentials");
-    }
-  }
-}
-
-export const LogoutUser = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const googleAuth = async (req: Request, res: Response) => {
   try {
+    console.log("📩 Datos enviados al servicio:", req.body);
+    const result = await googleLoginService(req.body);
+    if(!result){
+      sendError(res, 500, "Google login service returned no result");
+      return;
+    }
+    if(result.user && !result.token){
+      sendError(res, 500, "Google login service returned no token");
+      return;
+    }
     const isProduction = process.env.NODE_ENV === "production";
 
-res.clearCookie("token", {
-  httpOnly: true,
-  secure: isProduction,
-  sameSite: isProduction ? "none" : "lax",
-  path: "/",
-});
+    res.cookie("token", result.token, {
+      httpOnly: true,
+      secure: true,
+      sameSite:"lax",
+      maxAge: 24 * 60 * 60 * 1000, // 1 día
+      domain: isProduction ? ".render.com" : undefined, // ⚡ igual que register/login
+      path: "/", 
+    });
 
-    sendResponse(res, 200, "Logout completed successfully");
+    sendResponse(res, 200, "Google login successful", {
+      user: result.user,
+      token: result.token,
+    });
   } catch (error) {
     if (error instanceof Error) {
-      sendError(res, 500, "Error finishing session", error.message);
+      sendError(res, 500, "Error during Google login", error.message);
     } else {
-      sendError(res, 500, "Error finishing session");
+      sendError(res, 500, "Error during Google login");
     }
   }
 };
 
-  
+
+export const LogoutUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    res.clearCookie("token", {  
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      domain: ".render.com",
+    });
+
+    sendResponse(res, 200, "Logout successful");
+  } catch (error) {
+    sendError(res, 500, "Error during logout");
+  }   
+};

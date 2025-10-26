@@ -17,7 +17,7 @@ export const verifyToken = async (token: string) => {
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "tu-secreto-seguro"
+      process.env.JWT_SECRET_KEY || "tu-secreto-seguro"
     );
     return decoded as { userId: string; email: string };
   } catch (error) {
@@ -33,8 +33,11 @@ export const authUser = async (
   try {
     console.log("🔍 Auth middleware - Cookies:", req.cookies);
     console.log("🔍 Auth middleware - Headers:", req.headers.cookie);
-    
-    let token = req.cookies.token;
+    console.log (req.cookies["__Secure-next-auth.session-token"])
+    let token = req.cookies.token || 
+             req.cookies["next-auth.session-token"] || 
+             req.cookies["__Secure-next-auth.session-token"];
+
 
     if (!token) {
       console.log("❌ No token found in cookies");
