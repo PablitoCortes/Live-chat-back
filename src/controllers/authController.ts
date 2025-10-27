@@ -96,12 +96,19 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 export const googleAuth = async (req: Request, res: Response) => {
   try {
     console.log("📩 Datos enviados al servicio:", req.body);
+    console.log("🔑 JWT_SECRET_KEY definido:", !!process.env.JWT_SECRET_KEY);
+    console.log("🌍 NODE_ENV:", process.env.NODE_ENV);
+    
     const result = await googleLoginService(req.body);
+    console.log("✅ Resultado del servicio:", { user: !!result?.user, token: !!result?.token });
+    
     if (!result) {
+      console.error("❌ Google login service returned no result");
       sendError(res, 500, "Google login service returned no result");
       return;
     }
     if (result.user && !result.token) {
+      console.error("❌ Google login service returned no token");
       sendError(res, 500, "Google login service returned no token");
       return;
     }

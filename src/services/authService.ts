@@ -62,7 +62,7 @@ export const googleLoginService = async (userData: { email: string; name: string
     // Crear JWT firmado por tu backend
     const token = jwt.sign(
       { userId: user._id.toString(), email: user.email },
-      process.env.JWT_SECRET_KEY as string,
+      process.env.JWT_SECRET_KEY || "tu-secreto-seguro",
       { expiresIn: "24h" }
     );
     return { user, token };

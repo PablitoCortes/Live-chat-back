@@ -18,10 +18,10 @@ const PORT: number = parseInt(process.env.PORT || "3000");
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
- origin: [
-  "http://localhost:3000",
-  "https://live-chat-front-3xn3.onrender.com"
-],
+    origin: [
+      "http://localhost:3000",
+      "https://live-chat-front-3xn3.onrender.com"
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   },

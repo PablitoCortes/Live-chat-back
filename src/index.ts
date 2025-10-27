@@ -17,9 +17,8 @@ app.use(morgan("dev"));
 app.use(
   cors({
     origin: [
-      process.env.FRONTEND_URL || "http://localhost:3000",
-      "https://live-chat-front-3xn3.onrender.com"
-    ],
+      process.env.FRONTEND_URL || "http://localhost:3000" || "https://live-chat-front-3xn3.onrender.com",
+    ].filter(Boolean), // Filtra valores undefined/null
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
