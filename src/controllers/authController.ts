@@ -38,8 +38,8 @@ export const registerUser = async (
     res.cookie("token", token, {
       httpOnly: true,
       secure: isProduction, // ✅ true en prod
-      sameSite: isProduction ? "none" : "lax", // ✅ importante si front y back están en dominios distintos
-      maxAge: 24 * 60 * 60 * 7000,
+      sameSite: "none", // Siempre none para cross-origin
+      maxAge: 24 * 60 * 60 * 1000, // 1 día
       path: "/",
     });
 
@@ -71,9 +71,9 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: isProduction, // ✅ true en prod
-      sameSite: isProduction ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 7000,
-      domain: ".render.com",
+      sameSite: "none", // Siempre none para cross-origin
+      maxAge: 24 * 60 * 60 * 1000, // 1 día
+      path: "/",
     });
 
     sendResponse(res, 200, "Login successful", {
@@ -117,7 +117,7 @@ export const googleAuth = async (req: Request, res: Response) => {
     res.cookie("token", result.token, {
       httpOnly: true,
       secure: isProduction, // ✅ true en prod
-      sameSite: isProduction ? "none" : "lax",
+      sameSite: "none", // Siempre none para cross-origin
       maxAge: 24 * 60 * 60 * 1000, // 1 día
       path: "/",
     });
