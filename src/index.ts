@@ -34,8 +34,8 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://live-chat-front-3xn3.onrender.com",
-      process.env.FRONTEND_URL
-    ].filter(Boolean), // Filtra valores undefined/null
+      ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept"],
