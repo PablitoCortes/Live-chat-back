@@ -18,7 +18,7 @@ app.use(
   cors({
     origin: [
       process.env.FRONTEND_URL || "http://localhost:3000",
-      "https://live-chat-front-xutz.onrender.com"
+      "https://live-chat-front-3xn3.onrender.com"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
