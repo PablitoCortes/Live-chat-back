@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { User } from "../interfaces/User";
 import { sendResponse, sendError } from "../utils/apiResponse";
 import {
-  googleLoginService,
   loginUserService,
+  recoverPasswordService,
   registerUserService,
 } from "../services/authService";
 
@@ -12,7 +12,7 @@ export const registerUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { email, password, name } = req.body;
+    const { name, email, password } = req.body;
 
     if (!email || !password || !name) {
       sendError(res, 400, "Email, password and name are required");
@@ -26,19 +26,18 @@ export const registerUser = async (
     }
 
     const userData: User = {
+      name,
       email,
       password,
-      name,
       creationDate: new Date(),
     };
-    const isProduction = process.env.NODE_ENV === "production";
 
     const { newUser, token } = await registerUserService(userData);
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProduction, // ✅ true en prod
-      sameSite: "none", // Siempre none para cross-origin
+      secure: true,
+      sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000, // 1 día
       path: "/",
     });
@@ -66,12 +65,10 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
     const { user, token } = await loginUserService(email, password);
 
-    const isProduction = process.env.NODE_ENV === "production";
-
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isProduction, // ✅ true en prod
-      sameSite: "none", // Siempre none para cross-origin
+      secure: true,
+      sameSite: "none",
       maxAge: 24 * 60 * 60 * 1000, // 1 día
       path: "/",
     });
@@ -93,47 +90,23 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const googleAuth = async (req: Request, res: Response) => {
-  try {
-    console.log("📩 Datos enviados al servicio:", req.body);
-    console.log("🔑 JWT_SECRET_KEY definido:", !!process.env.JWT_SECRET_KEY);
-    console.log("🌍 NODE_ENV:", process.env.NODE_ENV);
-    
-    const result = await googleLoginService(req.body);
-    console.log("✅ Resultado del servicio:", { user: !!result?.user, token: !!result?.token });
-    
-    if (!result) {
-      console.error("❌ Google login service returned no result");
-      sendError(res, 500, "Google login service returned no result");
-      return;
-    }
-    if (result.user && !result.token) {
-      console.error("❌ Google login service returned no token");
-      sendError(res, 500, "Google login service returned no token");
-      return;
-    }
-    const isProduction = process.env.NODE_ENV === "production";
-
-    res.cookie("token", result.token, {
-      httpOnly: true,
-      secure: isProduction, // ✅ true en prod
-      sameSite: "none", // Siempre none para cross-origin
-      maxAge: 24 * 60 * 60 * 1000, // 1 día
-      path: "/",
-    });
-
-    sendResponse(res, 200, "Google login successful", {
-      user: result.user,
-      token: result.token,
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      sendError(res, 500, "Error during Google login", error.message);
-    } else {
-      sendError(res, 500, "Error during Google login");
+export const recoverPassword= async(req:Request, res:Response):Promise<void>=>{
+  const {newPassword,userEmail} = req.body
+  if (!userEmail || !newPassword) {
+    sendError(res, 400, "Email and password are required");
+    return;
+  }
+  try{
+    await recoverPasswordService(newPassword,userEmail)
+    sendResponse(res,200, "Password changed successfully")
+  }catch(error){
+    if(error instanceof Error){
+      sendError(res,500,"Error updating password", error.message)
+    }else{
+      sendError(res,500,"Error updating password")
     }
   }
-};
+}
 
 export const LogoutUser = async (
   req: Request,
@@ -145,7 +118,7 @@ export const LogoutUser = async (
 
     res.clearCookie("token", {
       httpOnly: true,
-      secure: isProduction, // ✅ true en prod
+      secure: isProduction, 
       sameSite: isProduction ? "none" : "lax",
 
     });

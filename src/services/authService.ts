@@ -27,6 +27,7 @@ export const loginUserService = async (email: string, password: string) => {
   };
 
 export const registerUserService = async (userData: User) => {
+  
     const newUser = new UserModel(userData);
 
     const token = jwt.sign(
@@ -41,35 +42,15 @@ export const registerUserService = async (userData: User) => {
     return {newUser,token}
   };
 
-export const googleLoginService = async (userData: { email: string; name: string; avatarUrl: string }) => {
- 
-  try{
-    let user = await UserModel.findOne({ email: userData.email, isDeleted: false });
-    
-    // Si no existe, crear uno nuevo
-    if (!user) {
-      user = new UserModel({
-        name: userData.name,
-        email: userData.email,
-        avatarUrl: userData.avatarUrl,
-        provider: "google",
-        password: null,
-        isDeleted: false,
-      });
-      await user.save();
-    }
-    
-    // Crear JWT firmado por tu backend
-    const token = jwt.sign(
-      { userId: user._id.toString(), email: user.email },
-      process.env.JWT_SECRET_KEY || "tu-secreto-seguro",
-      { expiresIn: "24h" }
-    );
-    return { user, token };
+export const recoverPasswordService = async(email: string, newPassword:string)=>{
+  const user = await UserModel.findOne({email: email})
 
-  }catch(error){
-    console.error("❌ Error en googleLoginService:", error);
-    throw new Error("Google login failed");
-
+  if(!user){
+    throw new Error ("user not found")
   }
-  };
+  user.password = newPassword
+
+  await user.save()
+
+  return {message: "password changed successfully"}
+}

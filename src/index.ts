@@ -14,14 +14,11 @@ app.set("trust proxy", 1);
 
 app.use(morgan("dev"));
 
-// Configuración de CORS unificada
 const allowedOrigins = [
   "http://localhost:3000",
   "https://live-chat-front-3xn3.onrender.com",
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
 ];
-
-console.log("🌐 Orígenes permitidos:", allowedOrigins);
 
 app.use(
   cors({
